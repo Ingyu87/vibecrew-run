@@ -60,9 +60,9 @@ function chart(){const W=320,Hh=160,wk=8,now=new Date(today()),labels=[],data={}
   for(const r of runs){const d=Math.floor((now-new Date(r.run_date))/864e5/7);if(d>=0&&d<wk)data[r.runner][wk-1-d]+=r.distance}
   const show=who==='ALL'?CREW:[who],mx=Math.max(5,...show.flatMap(n=>data[n])),bw=(W-30)/wk;
   let s=`<svg viewBox="0 0 ${W} ${Hh+20}" role="img" aria-label="주간 거리 차트"><line x1="24" x2="${W}" y1="${Hh}" y2="${Hh}" stroke="#eee"/>`;
-  s+=`<text x="0" y="12" font-size="10" fill="#7a7190">${Math.round(mx)}</text><text x="0" y="${Hh}" font-size="10" fill="#7a7190">0</text>`;
+  s+=`<text x="0" y="12" font-size="12" fill="#7a7190">${Math.round(mx)}</text><text x="0" y="${Hh}" font-size="12" fill="#7a7190">0</text>`;
   for(let i=0;i<wk;i++){const x0=28+i*bw,w=(bw-6)/show.length;show.forEach((n,j)=>{const h=data[n][i]/mx*(Hh-10);s+=`<rect x="${x0+j*w}" y="${Hh-h}" width="${w-1}" height="${h}" rx="3" fill="${COL[n]}"><title>${n} ${data[n][i].toFixed(1)}km</title></rect>`});
-    s+=`<text x="${x0+bw/2-3}" y="${Hh+14}" font-size="10" text-anchor="middle" fill="#7a7190">${i===wk-1?'이번주':(wk-1-i)+'주전'}</text>`}
+    s+=`<text x="${x0+bw/2-3}" y="${Hh+14}" font-size="12" text-anchor="middle" fill="#7a7190">${i===wk-1?'이번주':(wk-1-i)+'주전'}</text>`}
   $('chart').innerHTML=s+'</svg><div class="legend">'+show.map(n=>`<span><span class="dot" style="background:${COL[n]}"></span> ${n}</span>`).join('')+'</div>'}
 function best(f){if(!f.length){$('best').innerHTML=`<div class="empty"><img src="img/rest.webp" alt="">아직 기록이 없어요</div>`;return}
   const far=f.reduce((a,b)=>b.distance>a.distance?b:a),long=f.reduce((a,b)=>b.duration_sec>a.duration_sec?b:a);
@@ -111,7 +111,7 @@ $('btnCopy').onclick=()=>copy(url);
 async function copy(t){try{await navigator.clipboard.writeText(t);toast('링크를 복사했어요! 카톡에 붙여넣어 보세요')}catch(e){prompt('아래 내용을 복사하세요',t)}}
 
 /* settings */
-$('btnSettings').onclick=()=>{$('apiKey').value=localStorage.getItem('vc_gemini_key')||'';passState();$('dlgSettings').showModal()};
+$('btnSettings').onclick=()=>{document.querySelector('#dlgSettings details').open=!localStorage.getItem('vc_gemini_key');$('apiKey').value=localStorage.getItem('vc_gemini_key')||'';passState();$('dlgSettings').showModal()};
 $('btnKeySave').onclick=()=>{const k=$('apiKey').value.trim();if(!k)return toast('키를 붙여넣어 주세요','rest');localStorage.setItem('vc_gemini_key',k);toast('API 키를 이 기기에 저장했어요 🔑')};
 $('btnKeyDel').onclick=()=>{localStorage.removeItem('vc_gemini_key');$('apiKey').value='';toast('API 키를 지웠어요','rest')};
 $('btnForget').onclick=()=>{localStorage.removeItem(PK);passState();toast('이 기기에서 비밀번호를 지웠어요','rest')};
