@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<title>VibeCrew Run · 정일용 · 이문주 · 이민영</title>
+<meta name="description" content="3인 러닝 크루 기록 공유 앱">
+<meta property="og:title" content="VibeCrew Run 🏃"><meta property="og:description" content="정일용 · 이문주 · 이민영 3인 러닝 크루 기록">
+<meta property="og:image" content="img/win.webp"><meta name="theme-color" content="#ff7a59">
+<link rel="icon" href="img/run.webp"><link rel="preload" href="img/run.webp" as="image">
+<link rel="stylesheet" href="style.css">
+</head><body>
+<header class="top">
+  <img src="img/run.webp" alt="" class="hero-m" width="64" height="64">
+  <div class="ttl"><h1>VibeCrew Run</h1><p>정일용 · 이문주 · 이민영 러닝 크루</p></div>
+  <button class="icon-btn" id="btnSettings" aria-label="설정">⚙️</button>
+</header>
+<nav class="tabs" id="mainTabs">
+  <button data-tab="dash" class="on">📊 대시보드</button>
+  <button data-tab="add">➕ 기록하기</button>
+  <button data-tab="hist">📋 기록</button>
+</nav>
+<div class="filter" id="runnerFilter"></div>
+<main>
+<section id="tab-dash" class="tab on">
+  <div class="card goal">
+    <div class="row sb"><h2>이번 달 크루 목표</h2><button class="link" id="btnGoal">목표 바꾸기</button></div>
+    <div class="goal-num"><b id="goalNow">0</b> / <span id="goalMax">150</span> km</div>
+    <div class="bar"><i id="goalBar"></i><img src="img/run.webp" alt="" id="goalRunner"></div>
+    <p class="sub" id="goalMsg"></p>
+  </div>
+  <div class="stats">
+    <div class="stat"><span>총 거리</span><b id="sDist">0</b><small>km</small></div>
+    <div class="stat"><span>총 시간</span><b id="sTime">0</b><small></small></div>
+    <div class="stat"><span>평균 페이스</span><b id="sPace">-</b><small>/km</small></div>
+    <div class="stat"><span>러닝 횟수</span><b id="sCount">0</b><small>회</small></div>
+  </div>
+  <div class="card"><h2>야외 vs 러닝머신</h2>
+    <div class="split"><i id="splitOut"></i><i id="splitTm"></i></div>
+    <div class="row sb sub"><span id="splitOutL">🌳 야외 0%</span><span id="splitTmL">🏠 러닝머신 0%</span></div></div>
+  <div class="card"><h2>🏆 크루 랭킹 <small class="sub">이번 달</small></h2><ol class="rank" id="rank"></ol></div>
+  <div class="card"><h2>📈 멤버별 최근 8주 거리</h2><div id="chart" class="chart"></div></div>
+  <div class="card"><h2>🥇 베스트 기록</h2><div id="best" class="best"></div></div>
+  <div class="card share"><h2>크루에 공유하기</h2>
+    <div class="row g"><button class="btn kakao" id="btnShare">💬 카톡 공유</button><button class="btn ghost" id="btnCopy">🔗 링크 복사</button></div></div>
+</section>
+
+<section id="tab-add" class="tab">
+  <form class="card" id="runForm" autocomplete="off">
+    <h2>오늘 달린 기록 남기기</h2>
+    <div class="ai">
+      <img src="img/rest.webp" alt="" width="56" height="56">
+      <div><b>📸 사진으로 자동 입력</b><p class="sub">러닝머신 화면, 워치 완료 화면, 러닝 앱 캡처를 올리면 AI가 채워줘요.</p></div>
+    </div>
+    <label class="btn ghost file"><input type="file" accept="image/*" id="photo" hidden>사진 선택하기</label>
+    <p class="sub" id="aiMsg" role="status"></p>
+    <label>러너<select id="fRunner" required></select></label>
+    <div class="row g">
+      <label>날짜<input type="date" id="fDate" required></label>
+      <label>환경<select id="fType"><option value="outdoor">🌳 야외</option><option value="treadmill">🏠 러닝머신</option></select></label>
+    </div>
+    <label>거리 (km)<input type="number" id="fDist" step="0.01" min="0.01" max="499" inputmode="decimal" required placeholder="5.00"></label>
+    <fieldset><legend>시간</legend><div class="row g3">
+      <label>시<input type="number" id="fH" min="0" max="23" inputmode="numeric" value="0"></label>
+      <label>분<input type="number" id="fM" min="0" max="59" inputmode="numeric" placeholder="30"></label>
+      <label>초<input type="number" id="fS" min="0" max="59" inputmode="numeric" placeholder="0"></label></div></fieldset>
+    <div class="row g">
+      <label>경사도 (%)<input type="number" id="fInc" step="0.5" min="0" max="40" inputmode="decimal" value="0"></label>
+      <label>평균 심박<input type="number" id="fHr" min="30" max="250" inputmode="numeric" placeholder="선택"></label>
+    </div>
+    <label>러닝화 <small>(선택)</small><input type="text" id="fShoes" maxlength="60"></label>
+    <label>메모 <small>(선택)</small><input type="text" id="fMemo" maxlength="300" placeholder="오늘 컨디션 최고!"></label>
+    <p class="pace-prev" id="pacePrev"></p>
+    <button class="btn main" type="submit" id="btnSave">기록 저장하기</button>
+  </form>
+</section>
+
+<section id="tab-hist" class="tab">
+  <div class="card">
+    <div class="row g"><select id="hType" aria-label="환경"><option value="">전체 환경</option><option value="outdoor">🌳 야외</option><option value="treadmill">🏠 러닝머신</option></select>
+    <select id="hMonth" aria-label="월"></select></div>
+    <ul class="hist" id="hist"></ul>
+  </div>
+</section>
+</main>
+
+<dialog id="dlgSettings"><form method="dialog" class="dlg">
+  <h2>⚙️ 설정</h2>
+  <h3>🤖 Gemini API 키 (사진 분석용)</h3>
+  <p class="sub">키는 <b>이 폰(브라우저)에만</b> 저장돼요. 서버나 다른 사람에게 절대 전송되지 않아요.</p>
+  <input type="password" id="apiKey" placeholder="AIza로 시작하는 키" autocomplete="off">
+  <div class="row g"><button class="btn main" type="button" id="btnKeySave">키 저장</button><button class="btn ghost" type="button" id="btnKeyDel">키 삭제</button></div>
+  <details><summary>무료 키 받는 방법</summary><ol class="how">
+    <li><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>에 구글 계정으로 로그인해요.</li>
+    <li><b>Create API key</b>(API 키 만들기)를 눌러요. 카드 등록 없이 무료로 쓸 수 있어요.</li>
+    <li>만들어진 키(AIza…)를 복사해서 위 칸에 붙여넣고 저장하면 끝!</li>
+    <li>무료 사용량은 하루 몇십 장 정도라 개인 기록용으로 충분해요. 결제 정보를 등록하지 않으면 요금이 나가지 않아요.</li></ol></details>
+  <h3>💾 백업</h3>
+  <button class="btn ghost" type="button" id="btnBackup">전체 기록 JSON으로 내려받기</button>
+  <h3>🔐 크루 비밀번호</h3>
+  <p class="sub">이 기기에 기억된 비밀번호: <span id="passState">없음</span></p>
+  <div class="row g"><button class="btn ghost" type="button" id="btnForget">비밀번호 잊기</button><button class="btn ghost" type="button" id="btnChangePass">비밀번호 바꾸기</button></div>
+  <h3 class="danger-t">⚠️ 위험 구역</h3>
+  <button class="btn danger" type="button" id="btnClear">전체 비우기</button>
+  <button class="btn main close" value="close">닫기</button>
+</form></dialog>
+
+<dialog id="dlgPass"><form method="dialog" class="dlg" id="passForm">
+  <h2 id="passTitle">🔐 크루 비밀번호</h2>
+  <p class="sub" id="passDesc">기록을 바꾸려면 크루 비밀번호가 필요해요.</p>
+  <input type="password" id="passIn" autocomplete="off" placeholder="비밀번호">
+  <input type="text" id="passExtra" autocomplete="off" hidden>
+  <label class="chk"><input type="checkbox" id="passRemember" checked> 이 기기에 기억하기</label>
+  <p class="err" id="passErr" role="alert"></p>
+  <div class="row g"><button class="btn ghost" value="cancel" type="button" id="passCancel">취소</button><button class="btn main" type="submit" id="passOk" value="ok">확인</button></div>
+</form></dialog>
+
+<div class="toast" id="toast" role="status"><img src="img/win.webp" alt="" width="48" height="48"><span id="toastMsg"></span></div>
+<script src="app.js" defer></script>
+</body></html>
