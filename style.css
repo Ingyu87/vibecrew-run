@@ -64,3 +64,10 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:800;color:va
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,150%);display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;padding:8px 18px 8px 8px;border-radius:999px;font-weight:700;font-size:14px;max-width:92vw;transition:transform .3s;z-index:50}
 .toast.show{transform:translate(-50%,0)}
 @media(min-width:720px){.stats{grid-template-columns:repeat(4,1fr)}.tabs,.filter{max-width:640px;margin:0 auto}.top{border-radius:0 0 36px 36px;padding-left:max(16px,calc(50% - 304px));padding-right:max(16px,calc(50% - 304px))}}
+
+[hidden]{display:none!important}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.seg button{min-height:52px;border:2px solid var(--line);border-radius:12px;background:#fff;font-weight:800;font-size:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;white-space:nowrap;line-height:1.2}
+.seg button small{font-size:13px;font-weight:600;color:var(--sub)}
+.seg button.on{border-color:var(--pri);background:#fff1ea}
+.how p{margin:8px 0}

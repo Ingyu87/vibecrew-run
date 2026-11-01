@@ -1,7 +1,7 @@
 'use strict';
 const SB='https://dsfjuhqquwwvnykqhohn.supabase.co',KEY='sb_publishable_wDJ4G1YUCqxfjEGH3h8vyQ_Ulzh-PlJ';
 const CREW=['정일용','이문주','이민영'],COL={'정일용':'#2ec4b6','이문주':'#ff7a59','이민영':'#8b5cf6'};
-const MODELS=['gemini-3.8-flash','gemini-3.6-flash'];
+const MODELS=['gemini-3.8-flash','gemini-3.6-flash'],OAI_MODELS=['gpt-6-luna','gpt-5-nano'],CLAUDE_MODEL='claude-haiku-5-5';
 const $=id=>document.getElementById(id);
 let runs=[],goal=150,who='ALL';
 const H={apikey:KEY,'Content-Type':'application/json'};
@@ -111,10 +111,21 @@ $('btnCopy').onclick=()=>copy(url);
 async function copy(t){try{await navigator.clipboard.writeText(t);toast('링크를 복사했어요! 카톡에 붙여넣어 보세요')}catch(e){prompt('아래 내용을 복사하세요',t)}}
 
 /* settings */
-$('btnSettings').onclick=()=>{document.querySelector('#dlgSettings details').open=!localStorage.getItem('vc_gemini_key');$('apiKey').value=localStorage.getItem('vc_gemini_key')||'';$('keyState').textContent=localStorage.getItem('vc_gemini_key')?'✅ 이 폰에 저장된 키가 있어요. 다시 넣을 필요 없어요.':'';passState();$('dlgSettings').showModal()};
-$('btnKeySave').onclick=()=>{const k=$('apiKey').value.trim();if(!k)return toast('키를 붙여넣어 주세요','rest');localStorage.setItem('vc_gemini_key',k);toast('API 키를 이 기기에 저장했어요 🔑')};
-$('apiKey').addEventListener('input',()=>{const k=$('apiKey').value.trim();if(/^AIza\S{20,}$/.test(k)){localStorage.setItem('vc_gemini_key',k);$('keyState').textContent='✅ 이 폰에 자동 저장됐어요. 다음부터는 안 넣어도 돼요.'}});
-$('btnKeyDel').onclick=()=>{localStorage.removeItem('vc_gemini_key');$('apiKey').value='';toast('API 키를 지웠어요','rest')};
+const PN={gemini:'Gemini',openai:'ChatGPT',claude:'Claude'};
+if(localStorage.getItem('vc_gemini_key')&&!localStorage.getItem('vc_key_gemini')){localStorage.setItem('vc_key_gemini',localStorage.getItem('vc_gemini_key'));localStorage.removeItem('vc_gemini_key')}
+const getProv=()=>localStorage.getItem('vc_provider')||(['gemini','openai','claude'].find(p=>localStorage.getItem('vc_key_'+p))||'gemini');
+const detect=k=>/^sk-ant-/.test(k)?'claude':/^sk-/.test(k)?'openai':/^AIza/.test(k)?'gemini':null;
+let selProv=getProv();
+function showProv(){document.querySelectorAll('#provSeg button').forEach(b=>b.classList.toggle('on',b.dataset.p===selProv));const k=localStorage.getItem('vc_key_'+selProv)||'';$('apiKey').value=k;
+  $('apiKey').placeholder={gemini:'AIza로 시작하는 키',openai:'sk-로 시작하는 키',claude:'sk-ant-로 시작하는 키'}[selProv];
+  $('keyState').textContent=k?`✅ 이 폰에 ${PN[selProv]} 키가 저장돼 있어요. 다시 넣을 필요 없어요.`:`${PN[selProv]} 키가 아직 없어요.`}
+function saveKey(k,quiet){const p=detect(k)||selProv;selProv=p;localStorage.setItem('vc_key_'+p,k);localStorage.setItem('vc_provider',p);showProv();
+  $('keyState').textContent=`✅ ${PN[p]} 키를 이 폰에 자동 저장했어요. 사진 분석에 ${PN[p]}를 써요.`;if(!quiet)toast(`${PN[p]} 키 저장 완료 🔑`)}
+$('provSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;selProv=b.dataset.p;if(localStorage.getItem('vc_key_'+selProv))localStorage.setItem('vc_provider',selProv);showProv()};
+$('btnSettings').onclick=()=>{selProv=getProv();showProv();document.querySelector('#dlgSettings details').open=!localStorage.getItem('vc_key_'+selProv);passState();$('dlgSettings').showModal()};
+$('apiKey').addEventListener('input',()=>{const k=$('apiKey').value.trim();if(k.length>=20&&detect(k))saveKey(k,true)});
+$('btnKeySave').onclick=()=>{const k=$('apiKey').value.trim();if(!k)return toast('키를 붙여넣어 주세요','rest');saveKey(k)};
+$('btnKeyDel').onclick=()=>{localStorage.removeItem('vc_key_'+selProv);if(localStorage.getItem('vc_provider')===selProv)localStorage.removeItem('vc_provider');showProv();toast(`${PN[selProv]} 키를 지웠어요`,'rest')};
 $('btnForget').onclick=()=>{localStorage.removeItem(PK);passState();toast('이 기기에서 비밀번호를 지웠어요','rest')};
 $('btnChangePass').onclick=async()=>{try{if(await withPass((p,n)=>{if(!n||n.length<2)throw new Error('새 비밀번호는 2자 이상이어야 해요');return rpc('change_passcode',{old_passcode:p,new_passcode:n}).then(()=>{localStorage.removeItem(PK);return 1})},
   {title:'🔐 비밀번호 바꾸기',desc:'지금 비밀번호와 새 비밀번호를 입력해 주세요.',extra:'새 비밀번호 (4자 이상)'})){localStorage.removeItem(PK);passState();toast('비밀번호를 바꿨어요. 크루에게 알려 주세요!')}}catch(err){toast(err.message,'rest')}};
@@ -143,19 +154,29 @@ const SCHEMA={type:'OBJECT',properties:{type:{type:'STRING',enum:['outdoor','tre
   incline:{type:'NUMBER'},heartRate:{type:'INTEGER',nullable:true},shoes:{type:'STRING',nullable:true},note:{type:'STRING'}},required:['type','distance','hours','minutes','seconds']};
 function shrink(file){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const s=Math.min(1,1280/Math.max(img.width,img.height)),c=document.createElement('canvas');
   c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.85).split(',')[1])};img.onerror=rej;img.src=URL.createObjectURL(file)})}
-$('photo').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;const msg=$('aiMsg'),key=localStorage.getItem('vc_gemini_key');
-  if(!key){msg.innerHTML='🙂 사진 자동 입력은 Gemini API 키가 있어야 해요. 오른쪽 위 ⚙️ 설정에서 무료 키를 넣거나, 아래에 직접 입력해 주세요!';$('fDist').focus();return}
-  msg.textContent='🤖 AI가 사진을 읽는 중이에요… (5~15초)';
-  try{const data=await shrink(file);let r,lastErr;
-    for(const model of MODELS){r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},
+const JSON_HINT='\n반드시 다음 키를 가진 JSON 객체 하나만 출력해: type, distance, hours, minutes, seconds, incline, heartRate, shoes, note. 다른 글은 쓰지 마.';
+const parseJ=t=>{const m=String(t).match(/\{[\s\S]*\}/);if(!m)throw new Error('AI 응답을 읽지 못했어요');return JSON.parse(m[0])};
+const errMsg=s=>s===401||s===403||s===400?'API 키가 올바르지 않거나 권한이 없어요':s===429?'사용량 한도에 걸렸어요 (유료는 크레딧 확인)':s===402?'크레딧이 부족해요':'AI 오류 '+s;
+async function callAI(prov,key,data){
+  if(prov==='gemini'){let r,st;for(const model of MODELS){r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},
       body:JSON.stringify({contents:[{role:'user',parts:[{text:PROMPT},{inlineData:{mimeType:'image/jpeg',data}}]}],systemInstruction:{parts:[{text:SYS}]},generationConfig:{responseMimeType:'application/json',responseSchema:SCHEMA}})});
-      if(r.ok)break;lastErr=r.status;if(r.status!==404)break}
-    if(!r.ok)throw new Error(lastErr===400||lastErr===403?'API 키가 올바르지 않아요':lastErr===429?'오늘 무료 사용량을 다 썼어요':'AI 오류 '+lastErr);
-    const j=await r.json(),o=JSON.parse(j.candidates[0].content.parts[0].text);
+      if(r.ok)break;st=r.status;if(st!==404)break}
+    if(!r.ok)throw new Error(errMsg(st));const j=await r.json();return parseJ(j.candidates[0].content.parts[0].text)}
+  if(prov==='openai'){let r,st;for(const model of OAI_MODELS){r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},
+      body:JSON.stringify({model,response_format:{type:'json_object'},messages:[{role:'system',content:SYS+JSON_HINT},{role:'user',content:[{type:'text',text:PROMPT},{type:'image_url',image_url:{url:'data:image/jpeg;base64,'+data}}]}]})});
+      if(r.ok)break;st=r.status;if(st!==404)break}
+    if(!r.ok)throw new Error(errMsg(st));const j=await r.json();return parseJ(j.choices[0].message.content)}
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:CLAUDE_MODEL,max_tokens:600,system:SYS+JSON_HINT,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data}},{type:'text',text:PROMPT}]}]})});
+  if(!r.ok)throw new Error(errMsg(r.status));const j=await r.json();return parseJ(j.content.filter(c=>c.type==='text').map(c=>c.text).join(''))}
+$('photo').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;const msg=$('aiMsg'),prov=getProv(),key=localStorage.getItem('vc_key_'+prov);
+  if(!key){msg.textContent='🙂 사진 자동 입력은 AI 키가 있어야 해요. 오른쪽 위 ⚙️ 설정에서 무료 Gemini 키를 넣거나, 아래에 직접 입력해 주세요!';$('fDist').focus();return}
+  msg.textContent=`🤖 ${PN[prov]}가 사진을 읽는 중이에요… (5~15초)`;
+  try{const data=await shrink(file),o=await callAI(prov,key,data);
     if(!(o.distance>0))throw new Error('거리를 찾지 못했어요');
     $('fType').value=o.type==='treadmill'?'treadmill':'outdoor';$('fDist').value=(+o.distance).toFixed(2);$('fH').value=o.hours||0;$('fM').value=o.minutes||0;$('fS').value=o.seconds||0;
     $('fInc').value=o.incline||0;if(o.heartRate)$('fHr').value=o.heartRate;if(o.shoes)$('fShoes').value=o.shoes;if(o.note&&!$('fMemo').value)$('fMemo').value=o.note;pv();
-    msg.textContent='✅ 자동 입력 완료! 숫자가 맞는지 한 번 확인하고 저장해 주세요.'}
+    msg.textContent=`✅ ${PN[prov]} 자동 입력 완료! 숫자가 맞는지 한 번 확인하고 저장해 주세요.`}
   catch(err){msg.textContent=`😅 ${err.message}. 아래에 직접 입력해 주세요.`}};
 
 filterBar();passState();load();
