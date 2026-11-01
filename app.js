@@ -111,11 +111,12 @@ $('btnCopy').onclick=()=>copy(url);
 async function copy(t){try{await navigator.clipboard.writeText(t);toast('링크를 복사했어요! 카톡에 붙여넣어 보세요')}catch(e){prompt('아래 내용을 복사하세요',t)}}
 
 /* settings */
-$('btnSettings').onclick=()=>{document.querySelector('#dlgSettings details').open=!localStorage.getItem('vc_gemini_key');$('apiKey').value=localStorage.getItem('vc_gemini_key')||'';passState();$('dlgSettings').showModal()};
+$('btnSettings').onclick=()=>{document.querySelector('#dlgSettings details').open=!localStorage.getItem('vc_gemini_key');$('apiKey').value=localStorage.getItem('vc_gemini_key')||'';$('keyState').textContent=localStorage.getItem('vc_gemini_key')?'✅ 이 폰에 저장된 키가 있어요. 다시 넣을 필요 없어요.':'';passState();$('dlgSettings').showModal()};
 $('btnKeySave').onclick=()=>{const k=$('apiKey').value.trim();if(!k)return toast('키를 붙여넣어 주세요','rest');localStorage.setItem('vc_gemini_key',k);toast('API 키를 이 기기에 저장했어요 🔑')};
+$('apiKey').addEventListener('input',()=>{const k=$('apiKey').value.trim();if(/^AIza\S{20,}$/.test(k)){localStorage.setItem('vc_gemini_key',k);$('keyState').textContent='✅ 이 폰에 자동 저장됐어요. 다음부터는 안 넣어도 돼요.'}});
 $('btnKeyDel').onclick=()=>{localStorage.removeItem('vc_gemini_key');$('apiKey').value='';toast('API 키를 지웠어요','rest')};
 $('btnForget').onclick=()=>{localStorage.removeItem(PK);passState();toast('이 기기에서 비밀번호를 지웠어요','rest')};
-$('btnChangePass').onclick=async()=>{try{if(await withPass((p,n)=>{if(!n||n.length<4)throw new Error('새 비밀번호는 4자 이상이어야 해요');return rpc('change_passcode',{old_passcode:p,new_passcode:n}).then(()=>{localStorage.removeItem(PK);return 1})},
+$('btnChangePass').onclick=async()=>{try{if(await withPass((p,n)=>{if(!n||n.length<2)throw new Error('새 비밀번호는 2자 이상이어야 해요');return rpc('change_passcode',{old_passcode:p,new_passcode:n}).then(()=>{localStorage.removeItem(PK);return 1})},
   {title:'🔐 비밀번호 바꾸기',desc:'지금 비밀번호와 새 비밀번호를 입력해 주세요.',extra:'새 비밀번호 (4자 이상)'})){localStorage.removeItem(PK);passState();toast('비밀번호를 바꿨어요. 크루에게 알려 주세요!')}}catch(err){toast(err.message,'rest')}};
 $('btnBackup').onclick=()=>{const b=new Blob([JSON.stringify({app:'VibeCrew Run',exported_at:new Date().toISOString(),monthly_goal:goal,runs},null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`vibecrew-backup-${today()}.json`;a.click();toast(`기록 ${runs.length}개를 백업했어요 💾`)};
