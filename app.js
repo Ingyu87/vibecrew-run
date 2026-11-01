@@ -111,18 +111,22 @@ $('btnCopy').onclick=()=>copy(url);
 async function copy(t){try{await navigator.clipboard.writeText(t);toast('링크를 복사했어요! 카톡에 붙여넣어 보세요')}catch(e){prompt('아래 내용을 복사하세요',t)}}
 
 /* settings */
+const GUIDE={gemini:['Gemini 키 받는 방법','https://aistudio.google.com/apikey','Google AI Studio 열기 →',['구글 계정으로 로그인해요.','<b>Create API key</b>를 눌러요.','만들어진 키(AIza…)를 복사해서 위 칸에 붙여넣으면 자동 저장!']],
+openai:['ChatGPT 키 받는 방법','https://platform.openai.com/api-keys','OpenAI API 키 페이지 열기 →',['OpenAI 계정으로 로그인해요.','<b>Create new secret key</b>를 눌러요.','키(sk-…)를 복사해서 위 칸에 붙여넣으면 자동 저장! (ChatGPT 앱 구독과는 별개예요)']],
+claude:['Claude 키 받는 방법','https://console.anthropic.com/settings/keys','Anthropic 콘솔 키 페이지 열기 →',['Anthropic 콘솔에 로그인해요.','<b>Create Key</b>를 눌러요.','키(sk-ant-…)를 복사해서 위 칸에 붙여넣으면 자동 저장!']]};
+function showGuide(){const [t,u,l,st]=GUIDE[selProv];$('keyGuide').innerHTML=`<b>📝 ${t}</b><a href="${u}" target="_blank" rel="noopener">${l}</a><ol>${st.map(x=>`<li>${x}</li>`).join('')}</ol>`}
 const PN={gemini:'Gemini',openai:'ChatGPT',claude:'Claude'};
 if(localStorage.getItem('vc_gemini_key')&&!localStorage.getItem('vc_key_gemini')){localStorage.setItem('vc_key_gemini',localStorage.getItem('vc_gemini_key'));localStorage.removeItem('vc_gemini_key')}
 const getProv=()=>localStorage.getItem('vc_provider')||(['gemini','openai','claude'].find(p=>localStorage.getItem('vc_key_'+p))||'gemini');
 const detect=k=>/^sk-ant-/.test(k)?'claude':/^sk-/.test(k)?'openai':/^AIza/.test(k)?'gemini':null;
 let selProv=getProv();
-function showProv(){document.querySelectorAll('#provSeg button').forEach(b=>b.classList.toggle('on',b.dataset.p===selProv));const k=localStorage.getItem('vc_key_'+selProv)||'';$('apiKey').value=k;
+function showProv(){showGuide();document.querySelectorAll('#provSeg button').forEach(b=>b.classList.toggle('on',b.dataset.p===selProv));const k=localStorage.getItem('vc_key_'+selProv)||'';$('apiKey').value=k;
   $('apiKey').placeholder={gemini:'AIza로 시작하는 키',openai:'sk-로 시작하는 키',claude:'sk-ant-로 시작하는 키'}[selProv];
   $('keyState').textContent=k?`✅ 이 폰에 ${PN[selProv]} 키가 저장돼 있어요. 다시 넣을 필요 없어요.`:`${PN[selProv]} 키가 아직 없어요.`}
 function saveKey(k,quiet){const p=detect(k)||selProv;selProv=p;localStorage.setItem('vc_key_'+p,k);localStorage.setItem('vc_provider',p);showProv();
   $('keyState').textContent=`✅ ${PN[p]} 키를 이 폰에 자동 저장했어요. 사진 분석에 ${PN[p]}를 써요.`;if(!quiet)toast(`${PN[p]} 키 저장 완료 🔑`)}
 $('provSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;selProv=b.dataset.p;if(localStorage.getItem('vc_key_'+selProv))localStorage.setItem('vc_provider',selProv);showProv()};
-$('btnSettings').onclick=()=>{selProv=getProv();showProv();document.querySelector('#dlgSettings details').open=!localStorage.getItem('vc_key_'+selProv);passState();$('dlgSettings').showModal()};
+$('btnSettings').onclick=()=>{selProv=getProv();showProv();passState();$('dlgSettings').showModal()};
 $('apiKey').addEventListener('input',()=>{const k=$('apiKey').value.trim();if(k.length>=20&&detect(k))saveKey(k,true)});
 $('btnKeySave').onclick=()=>{const k=$('apiKey').value.trim();if(!k)return toast('키를 붙여넣어 주세요','rest');saveKey(k)};
 $('btnKeyDel').onclick=()=>{localStorage.removeItem('vc_key_'+selProv);if(localStorage.getItem('vc_provider')===selProv)localStorage.removeItem('vc_provider');showProv();toast(`${PN[selProv]} 키를 지웠어요`,'rest')};
