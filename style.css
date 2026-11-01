@@ -61,8 +61,8 @@ dialog::backdrop{background:#2b234088}.dlg{padding:20px;display:block}.dlg .btn{
 summary{min-height:44px;display:flex;align-items:center;font-weight:800;color:var(--pri);cursor:pointer}
 .chk{display:flex;align-items:center;gap:8px;min-height:44px}.chk input{width:22px;height:22px;min-height:0;margin:0}
 .err{color:#c92a2a;font-weight:700;min-height:20px;font-size:14px}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,150%);display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;padding:8px 18px 8px 8px;border-radius:999px;font-weight:700;font-size:14px;max-width:92vw;transition:transform .3s;z-index:50}
-.toast.show{transform:translate(-50%,0)}
+.toast{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translate(-50%,-160%);visibility:hidden;display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;padding:8px 18px 8px 8px;border-radius:999px;font-weight:700;font-size:14px;max-width:92vw;transition:transform .3s,visibility .3s;z-index:50;box-shadow:0 8px 24px #2b234055}
+.toast.show{transform:translate(-50%,0);visibility:visible}
 @media(min-width:720px){.stats{grid-template-columns:repeat(4,1fr)}.tabs,.filter{max-width:640px;margin:0 auto}.top{border-radius:0 0 36px 36px;padding-left:max(16px,calc(50% - 304px));padding-right:max(16px,calc(50% - 304px))}}
 
 [hidden]{display:none!important}
