@@ -156,7 +156,7 @@ function shrink(file){return new Promise((res,rej)=>{const img=new Image();img.o
   c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.85).split(',')[1])};img.onerror=rej;img.src=URL.createObjectURL(file)})}
 const JSON_HINT='\n반드시 다음 키를 가진 JSON 객체 하나만 출력해: type, distance, hours, minutes, seconds, incline, heartRate, shoes, note. 다른 글은 쓰지 마.';
 const parseJ=t=>{const m=String(t).match(/\{[\s\S]*\}/);if(!m)throw new Error('AI 응답을 읽지 못했어요');return JSON.parse(m[0])};
-const errMsg=s=>s===401||s===403||s===400?'API 키가 올바르지 않거나 권한이 없어요':s===429?'사용량 한도에 걸렸어요 (유료는 크레딧 확인)':s===402?'크레딧이 부족해요':'AI 오류 '+s;
+const errMsg=s=>s===401||s===403||s===400?'API 키가 올바르지 않거나 권한이 없어요':s===429?'사용량 한도에 걸렸어요':s===402?'크레딧이 부족해요':'AI 오류 '+s;
 async function callAI(prov,key,data){
   if(prov==='gemini'){let r,st;for(const model of MODELS){r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},
       body:JSON.stringify({contents:[{role:'user',parts:[{text:PROMPT},{inlineData:{mimeType:'image/jpeg',data}}]}],systemInstruction:{parts:[{text:SYS}]},generationConfig:{responseMimeType:'application/json',responseSchema:SCHEMA}})});
@@ -170,7 +170,7 @@ async function callAI(prov,key,data){
     body:JSON.stringify({model:CLAUDE_MODEL,max_tokens:600,system:SYS+JSON_HINT,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data}},{type:'text',text:PROMPT}]}]})});
   if(!r.ok)throw new Error(errMsg(r.status));const j=await r.json();return parseJ(j.content.filter(c=>c.type==='text').map(c=>c.text).join(''))}
 $('photo').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;const msg=$('aiMsg'),prov=getProv(),key=localStorage.getItem('vc_key_'+prov);
-  if(!key){msg.textContent='🙂 사진 자동 입력은 AI 키가 있어야 해요. 오른쪽 위 ⚙️ 설정에서 무료 Gemini 키를 넣거나, 아래에 직접 입력해 주세요!';$('fDist').focus();return}
+  if(!key){msg.textContent='🙂 사진 자동 입력은 AI 키가 있어야 해요. 오른쪽 위 ⚙️ 설정에서 AI 키를 넣거나, 아래에 직접 입력해 주세요!';$('fDist').focus();return}
   msg.textContent=`🤖 ${PN[prov]}가 사진을 읽는 중이에요… (5~15초)`;
   try{const data=await shrink(file),o=await callAI(prov,key,data);
     if(!(o.distance>0))throw new Error('거리를 찾지 못했어요');

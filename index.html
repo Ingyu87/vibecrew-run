@@ -87,18 +87,18 @@
   <h3>🤖 사진 분석 AI</h3>
   <p class="sub">키는 <b>이 폰(브라우저)에만</b> 자동 저장돼요. 한 번 넣으면 다시 안 넣어도 되고, 우리 서버나 다른 사람에게는 절대 전송되지 않아요.</p>
   <div class="seg" id="provSeg" role="radiogroup">
-    <button type="button" data-p="gemini">Gemini<small>무료</small></button>
-    <button type="button" data-p="openai">ChatGPT<small>유료</small></button>
-    <button type="button" data-p="claude">Claude<small>유료</small></button>
+    <button type="button" data-p="gemini">Gemini</button>
+    <button type="button" data-p="openai">ChatGPT</button>
+    <button type="button" data-p="claude">Claude</button>
   </div>
   <p class="sub" id="keyState"></p>
   <input type="password" id="apiKey" placeholder="API 키를 붙여넣으세요" autocomplete="off">
   <div class="row g"><button class="btn main" type="button" id="btnKeySave">키 저장</button><button class="btn ghost" type="button" id="btnKeyDel">키 삭제</button></div>
   <p class="sub">💡 키를 붙여넣으면 종류를 알아서 알아봐요 (AIza… = Gemini, sk-ant-… = Claude, sk-… = ChatGPT).</p>
-  <details><summary>키 받는 방법 · 요금 안내</summary><div class="how">
-    <p><b>🟢 Gemini (추천 · 무료)</b><br>유일하게 무료 사용량이 있어요. <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>에 구글 계정으로 로그인 → <b>Create API key</b> → 키(AIza…) 복사해서 붙여넣기. 카드 등록 없이 쓸 수 있고, 결제 정보를 등록하지 않으면 요금이 나가지 않아요.</p>
-    <p><b>🟠 ChatGPT (OpenAI · 유료)</b><br><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI API 키 페이지</a>에서 만들어요(sk-…). 무료 사용량이 없어서 먼저 크레딧을 충전해야 하고, 사진 1장에 몇 원 정도 나가요. ChatGPT Plus 구독과는 별개예요.</p>
-    <p><b>🟣 Claude (Anthropic · 유료)</b><br><a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Anthropic 콘솔 키 페이지</a>에서 만들어요(sk-ant-…). 역시 크레딧 충전이 필요하고 사진 1장에 몇 원 정도 나가요.</p>
+  <details><summary>키 받는 방법</summary><div class="how">
+    <p><b>🟢 Gemini (Google)</b><br><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>에 구글 계정으로 로그인 → <b>Create API key</b> → 키(AIza…)를 복사해서 붙여넣어요.</p>
+    <p><b>🟠 ChatGPT (OpenAI)</b><br><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI API 키 페이지</a>에서 키(sk-…)를 만들어 붙여넣어요. ChatGPT 앱 구독과는 별개예요.</p>
+    <p><b>🟣 Claude (Anthropic)</b><br><a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Anthropic 콘솔 키 페이지</a>에서 키(sk-ant-…)를 만들어 붙여넣어요.</p>
   </div></details>
   <h3>💾 백업</h3>
   <button class="btn ghost" type="button" id="btnBackup">전체 기록 JSON으로 내려받기</button>
