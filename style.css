@@ -71,4 +71,4 @@ summary{min-height:44px;display:flex;align-items:center;font-weight:800;color:va
 .seg button small{font-size:13px;font-weight:600;color:var(--sub)}
 .seg button.on{border-color:var(--pri);background:#fff1ea}
 .how p{margin:8px 0}
-.guide{background:#fff6ec;border:2px dashed #ffd2b3;border-radius:14px;padding:12px 14px;margin-top:10px;font-size:14px}.guide b{display:block;margin-bottom:4px}.guide ol{margin:0;padding-left:20px}.guide li{margin:4px 0}.guide a{color:var(--pri);font-weight:800;display:inline-flex;align-items:center;min-height:44px}
+.guide{background:#fff6ec;border:2px dashed #ffd2b3;border-radius:14px;padding:12px 14px;margin-top:10px;font-size:14px}.guide>b{display:block;margin-bottom:4px}.guide ol{margin:0;padding-left:20px}.guide li{margin:4px 0}.guide a{color:var(--pri);font-weight:800;display:inline-flex;align-items:center;min-height:44px}
